@@ -14,6 +14,7 @@ Item {
   property int failedAttempts: 0
   property bool inputEnabled: true
   property bool loadBackground: true
+  property bool screenBlanked: false
   property string passwordText: ""
   property bool syncingPasswordText: false
 
@@ -175,6 +176,15 @@ Item {
         }
 
         Keys.onPressed: function(event) {
+          // The screen being off is the signal that this keypress is meant to wake
+          // it, not type into the field, so swallow it here rather than let it
+          // land as a stray character (or an accidental submit on Enter).
+          if (root.screenBlanked) {
+            event.accepted = true
+            root.wakeRequested()
+            return
+          }
+
           root.wakeRequested()
           if (event.key === Qt.Key_Escape || (event.modifiers & Qt.ControlModifier && event.key === Qt.Key_U)) {
             root.passwordTextEdited("")

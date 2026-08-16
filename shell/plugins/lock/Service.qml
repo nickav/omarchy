@@ -33,6 +33,7 @@ Item {
   property string lastEventAt: ""
   property bool strandedLock: false
   property bool strandedLockResolved: false
+  property bool screenBlanked: false
 
   readonly property bool locked: lockRequested || sessionLock.locked || sessionLock.secure
   readonly property bool authenticating: authenticatingPassword || fingerprintAuthenticating
@@ -165,11 +166,13 @@ Item {
   }
 
   function runWake() {
+    screenBlanked = false
     if (!wakeProcess.running) wakeProcess.running = true
     if (lockRequested) armBlankTimer()
   }
 
   function runBlank() {
+    screenBlanked = true
     if (!blankProcess.running) blankProcess.running = true
   }
 
@@ -276,6 +279,7 @@ Item {
         failedAttempts: root.failedAttempts
         inputEnabled: root.lockRequested
         loadBackground: root.locked
+        screenBlanked: root.screenBlanked
         passwordText: root.enteredPassword
         onPasswordTextEdited: function(password) { root.enteredPassword = password }
         onSubmitPassword: function(password) { root.submitPassword(password) }
